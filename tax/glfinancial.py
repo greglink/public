@@ -3,6 +3,12 @@
 import collections
 import numpy as np
 import scipy.optimize
+import matplotlib.pyplot as plt
+import sys
+import pandas as pd
+import copy
+import time
+import matplotlib.ticker
 
 tax_rates = [
     (9700, 0.10),
@@ -63,7 +69,6 @@ def pretax(posttax_income, state_tax=[]):
     return round(pretax_income,1)
 
     
-import sys
 class RecurringCashflow:
     def define_monthly(self, monthly_flow, name, monthly_nw=0, yearly_apr=1.0, year_start=0, year_end=sys.maxsize, taxable=False):
         self.define_yearly(monthly_flow * 12, name, monthly_nw*12, yearly_apr, year_start, year_end, taxable)
@@ -180,11 +185,6 @@ class CashflowModel():
         plt.suptitle('Monthly Cashflows for $\it{}$'.format(self.name))
         plt.show()
 
-
-import pandas as pd
-import copy
-import time
-import matplotlib.ticker
 
 # We create a list of dictionaries, where each entry/dict is one row
 
