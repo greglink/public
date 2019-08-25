@@ -3,6 +3,7 @@
 import sys
 import time
 import warnings
+import math
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker
@@ -20,7 +21,7 @@ from GLLoanTools import *
 
 class Parameters:
     def __init__(self):
-        self.max_years=50
+        self.max_years=75
         self.default_apr=1.06
         self.min_apr=0.75
         self.max_apr=1.25
@@ -98,12 +99,25 @@ class FinancialEvent(object):
 
 
 class FinancialModel:
-    def __init__(self, name='Unnamed', real_year=0, nw_apr=1.06, nw_apr_stdev=0.08):
+    def __init__(self, name='Unnamed', real_year=0, nw_apr=1.06, nw_apr_stdev=0.08, location=None):
         self.name = name
         self.real_year = real_year
         self.nw_apr = nw_apr
         self.nw_apr_stdev = nw_apr_stdev
         self.fevents = []
+        self.residences = {} # Dict keyed by simyearhash with simkey None
+        if location is not None:
+            self.move_to(location, year_start=0)
+
+    def move_to(self, location, year_start=None, year_end=None):
+        if year_start is None:
+            year_start = 0
+        if year_end is None:
+            fill_end = Parameters().max_years
+        else:
+            fill_end = max(year_start+1, year_end)
+        for year in np.arange(year_start, fill_end):
+            self.residences[FinancialModel.get_simyearhash(None, year)] = location
         
     def add_single(self, *args, **kwargs):
         fe = FinancialEvent().define_single(*args, **kwargs)
@@ -171,7 +185,8 @@ class FinancialModel:
             for year in years:
                 combined_gross_income[year] = combined_gross_income[year] + fe.gross_income(year) if fe.gross_income(year) > 0 else combined_gross_income[year]
                 combined_agi[year] = combined_agi[year] + fe.adjusted_gross_income(year) if fe.adjusted_gross_income(year) > 0 else combined_agi[year]
-                posttax[year] = combined_gross_income[year] - incometax(combined_agi[year])
+                current_location = self.residences.get(FinancialModel.get_simyearhash(None, year), None)
+                posttax[year] = combined_gross_income[year] - incometax(combined_agi[year], location=current_location)
                 combined_expenses[year] = combined_expenses[year] - fe.gross_income(year) if fe.gross_income(year) < 0 else combined_expenses[year]
                 explicit_nw_impact[year] = explicit_nw_impact[year] + fe.explicit_nw_impact(year)
         real_years = list(map(lambda x: x + self.real_year, years)) 
@@ -301,14 +316,15 @@ class FinancialModel:
         plt.show(block=block)
 
     @staticmethod
-    def plotmany(master_tuple_list, nyears=float('inf'), block=False):
+    def plotmany(master_tuple_list, nyears=float('inf'), block=False, subplot_columns=2):
         # Does not well handle Financial Models that don't all start on the same real year
         master_results_list, master_summary_list = zip(*master_tuple_list)
         results_lists=[['Net Worth'],['Gross Income'], ['Expenses'], ['Net Gain', 'Explicit NW Impact']]
         min_real_year = np.min([ms['real_year'] for ms in master_summary_list])
         max_real_year = min(nyears, np.max([ms['real_year']+ms['nyears'] for ms in master_summary_list]))
         real_years = np.arange(min_real_year, max_real_year)
-        fig, axs = plt.subplots(len(results_lists),1,figsize=(16,8), constrained_layout=True)
+        sprows = math.ceil(len(results_lists)/subplot_columns)
+        fig, axs = plt.subplots(sprows,subplot_columns,figsize=(16,8), constrained_layout=True)
         for index, result_list in enumerate(results_lists):
             ax = axs.flat[index]
             max_y_on_axis = -float("inf")

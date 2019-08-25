@@ -35,11 +35,29 @@ example_tax_rates = [  # Example 4% on some income, just because, representing s
     (1000 ** 5, 0.04)
 ]
 
+tax_at_location = {
+    'CA': ca_tax_rates,
+    'MA': ma_tax_rates,
+    'EXAMPLE': example_tax_rates
+}
 
+def incometax(pretax_income_arg, state_tax=None, location=None):
+    if state_tax is None:
+        if location is None:
+            state_tax = []
+        else:
+            try:
+                state_tax = tax_at_location[location.upper()]
+            except KeyError:
+                raise ValueError(f'Attempted to submit location {location.upper()} to incometax, which only supports locations of {tax_at_location.keys()}')
+    else:
+        if location is not None:
+            raise AssertionError('You cannot submit both a state tax table {state_tax} and location {location} at once')
+        else:
+            state_tax = state_tax
 
-def incometax(pretax_income_arg, state_tax=[]):
     if isinstance(pretax_income_arg, collections.Iterable):
-        return [incometax(i, state_tax=state_tax) for i in pretax_income_arg]
+        return [incometax(i, state_tax=state_tax, location=location) for i in pretax_income_arg]
     tax_owed = 0
     previous_end = 0
     pretax_income = pretax_income_arg - 12200  # Standard Exemption

@@ -10,9 +10,10 @@ def get_vh_fm():
 	# Housing
 	fm.add_monthly(-3000, 'Rent', year_end=2)
 	# Now we buy a 375,000 house, spending 75,000 on down payment, and taking a loan for the rest
+	# The loan APR is actually 5%, but since all math is done in current-value dollars, we reduce by ~2% for inflation
 	home_sale_price = 375 * 1000
 	fm.add_single(-0.2 * home_sale_price , 'Home Down Payment', 3)
-	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.05)
+	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.03)
 	fm.add_yearly(-0.02 * home_sale_price, 'Home Maintenance, Insurance, Etc', year_start=3)
 	# OPTIONAL: Some people include their home value in their net worth, and thus appreciation/etc. Since I don't plan to sell, I don't count it.
 	# fm.add_single(375 * 1000, 'Home', year_start=3)
@@ -35,9 +36,10 @@ def get_h_fm():
 	# Housing
 	fm.add_monthly(-3000, 'Rent', year_end=2)
 	# Now we buy a 375,000 house, spending 75,000 on down payment, and taking a loan for the rest
+	# The loan APR is actually 5%, but since all math is done in current-value dollars, we reduce by ~2% for inflation
 	home_sale_price = 375 * 1000
 	fm.add_single(-0.2 * home_sale_price , 'Home Down Payment', 3)
-	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.05)
+	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.02)
 	fm.add_yearly(-0.02 * home_sale_price, 'Home Maintenance, Insurance, Etc', year_start=3)
 	# OPTIONAL: Some people include their home value in their net worth, and thus appreciation/etc. Since I don't plan to sell, I don't count it.
 	# fm.add_single(375 * 1000, 'Home', year_start=3)
@@ -59,10 +61,9 @@ def get_m_fm():
 
 	# Housing
 	fm.add_monthly(-3000, 'Rent', year_end=2)
-	# Now we buy a 375,000 house, spending 75,000 on down payment, and taking a loan for the rest
 	home_sale_price = 275 * 1000
 	fm.add_single(-0.2 * home_sale_price , 'Home Down Payment', 3)
-	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.05)
+	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.02) # 5% in actual APR, but since we model in CVD, we subtract inflation
 	fm.add_yearly(-0.02 * home_sale_price, 'Home Maintenance, Insurance, Etc', year_start=3)
 	# OPTIONAL: Some people include their home value in their net worth, and thus appreciation/etc. Since I don't plan to sell, I don't count it.
 	# fm.add_single(375 * 1000, 'Home', year_start=3)
@@ -84,10 +85,9 @@ def get_l_fm():
 
 	# Housing
 	fm.add_monthly(-2000, 'Rent', year_end=2)
-	# Now we buy a 375,000 house, spending 75,000 on down payment, and taking a loan for the rest
 	home_sale_price = 225 * 1000
 	fm.add_single(-0.2 * home_sale_price , 'Home Down Payment', 3)
-	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.05)
+	fm.add_loan(0.8 * home_sale_price, 'Mortgage', 15, year_start=3, apr=1.03) # A 5% APR is the 'real' amount, but inflation eats ~2% of that
 	fm.add_yearly(-0.02 * home_sale_price, 'Home Maintenance, Insurance, Etc', year_start=3)
 	# OPTIONAL: Some people include their home value in their net worth, and thus appreciation/etc. Since I don't plan to sell, I don't count it.
 	# fm.add_single(375 * 1000, 'Home', year_start=3)
