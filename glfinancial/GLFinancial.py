@@ -99,17 +99,19 @@ class FinancialEvent(object):
 
 
 class FinancialModel:
-    def __init__(self, name='Unnamed', real_year=0, nw_apr=1.06, nw_apr_stdev=0.08, location=None):
+    def __init__(self, name='Unnamed', real_year=0, nw_apr=1.06, nw_apr_stdev=0.08, location=None, status='single'):
         self.name = name
         self.real_year = real_year
         self.nw_apr = nw_apr
         self.nw_apr_stdev = nw_apr_stdev
         self.fevents = []
         self.residences = {} # Dict keyed by simyearhash with simkey None
+        self.status = {}
         if location is not None:
-            self.move_to(location, year_start=0)
+            self.change_residence(location, year_start=0)
+        self.change_status(status, year_start=0)
 
-    def move_to(self, location, year_start=None, year_end=None):
+    def change_residence(self, location, year_start=None, year_end=None):
         if year_start is None:
             year_start = 0
         if year_end is None:
@@ -117,7 +119,17 @@ class FinancialModel:
         else:
             fill_end = max(year_start+1, year_end)
         for year in np.arange(year_start, fill_end):
-            self.residences[FinancialModel.get_simyearhash(None, year)] = location
+            self.residences[year] = location
+
+    def change_status(self, status, year_start=None, year_end=None):
+        if year_start is None:
+            year_start = 0
+        if year_end is None:
+            fill_end = Parameters().max_years
+        else:
+            fill_end = max(year_start+1, year_end)
+        for year in np.arange(year_start, fill_end):
+            self.status[year] = status
         
     def add_single(self, *args, **kwargs):
         fe = FinancialEvent().define_single(*args, **kwargs)
@@ -140,6 +152,32 @@ class FinancialModel:
         
     def add_fevents(self, fevents):
         self.fevents.extend(fevents)
+
+    def add_status_to_plot(self, ax, fontsize=9):
+        xvalues = []
+        yvalues = [None] # Initialize with a single entry
+        text = []
+        for sy in sorted(self.status.keys()):
+            if yvalues[-1] is not self.status[sy]:
+                yvalues.append(self.status[sy])
+                xvalues.append(sy)
+                text.append(self.status[sy])
+        yvalues = yvalues[1:]
+        for x,y,t in zip(xvalues, yvalues, text):  
+            ax.annotate(t, xy=(x,0), xytext=(5,5), textcoords='offset points', arrowprops={'arrowstyle':'-'})
+            
+    def add_residence_to_plot(self, ax, fontsize=9):
+        xvalues = []
+        yvalues = [None] # Initialize with a single entry
+        text = []
+        for sy in sorted(self.residences.keys()):
+            if yvalues[-1] is not self.residences[sy]:
+                yvalues.append(self.residences[sy])
+                xvalues.append(sy)
+                text.append(self.residences[sy])
+        yvalues = yvalues[1:]
+        for x,y,t in zip(xvalues, yvalues, text):  
+            ax.annotate(t, xy=(x,0), xytext=(5,-5), textcoords='offset points', arrowprops={'arrowstyle':'-'})
             
     def plot_cashflow(self, year_start=0, year_end=25, block=False):
         fig, axs = plt.subplots(1,2,figsize=(15,5), constrained_layout=True, sharex=True)
@@ -158,6 +196,8 @@ class FinancialModel:
             handles, labels = ax.get_legend_handles_labels()
         y_range = max_y - min_y
         ax.set_ylim(bottom=min_y-0.05*y_range, top=max_y+0.05*y_range)
+        self.add_status_to_plot(ax)
+        self.add_residence_to_plot(ax)
         if self.real_year is 0:
             ax.set_xlabel('Years Since Initial Conditions')
         else:
@@ -181,14 +221,15 @@ class FinancialModel:
         posttax = [0 for _ in years]
         combined_expenses = [0 for _ in years]
         explicit_nw_impact = [0 for _ in years]
-        for fe in self.fevents:
-            for year in years:
+        taxes = TaxTable()
+        for year in years:
+            taxes.set_from_fm(self, year)
+            for fe in self.fevents:
                 combined_gross_income[year] = combined_gross_income[year] + fe.gross_income(year) if fe.gross_income(year) > 0 else combined_gross_income[year]
                 combined_agi[year] = combined_agi[year] + fe.adjusted_gross_income(year) if fe.adjusted_gross_income(year) > 0 else combined_agi[year]
-                current_location = self.residences.get(FinancialModel.get_simyearhash(None, year), None)
-                posttax[year] = combined_gross_income[year] - incometax(combined_agi[year], location=current_location)
                 combined_expenses[year] = combined_expenses[year] - fe.gross_income(year) if fe.gross_income(year) < 0 else combined_expenses[year]
                 explicit_nw_impact[year] = explicit_nw_impact[year] + fe.explicit_nw_impact(year)
+            posttax[year] = combined_gross_income[year] - taxes.incometax(combined_agi[year])
         real_years = list(map(lambda x: x + self.real_year, years)) 
         ax.scatter(real_years, combined_gross_income, label='Total Gross Income')
         ax.plot(real_years, combined_gross_income)
@@ -229,6 +270,7 @@ class FinancialModel:
         sim_summary['simkey'] = simkey
         results = {}
         results[FinancialModel.get_simyearhash(simkey, 0)] = {'Net Worth':initial_nw, 'Explicit NW Impact': np.sum([fe.explicit_nw_impact(0) for fe in self.fevents])}
+        taxes = TaxTable()
         for cur_year in np.arange(1, nyears):
             try:
                 this_year = results[FinancialModel.get_simyearhash(simkey, cur_year)] = {}
@@ -241,7 +283,8 @@ class FinancialModel:
             this_year['Net Worth'] = last_year['Net Worth'] + net_worth_interest + last_year.get('Net Gain',0) + last_year['Explicit NW Impact']
             this_year['Gross Income'] = np.sum([max(0, fe.gross_income(cur_year)) for fe in self.fevents])
             this_year['Adjusted Gross Income'] = np.sum([max(0,fe.adjusted_gross_income(cur_year)) for fe in self.fevents])
-            this_year['Taxes'] = incometax(this_year['Adjusted Gross Income'])
+            taxes.set_from_fm(self, cur_year)
+            this_year['Taxes'] = taxes.incometax(this_year['Adjusted Gross Income'])
             posttax_income = this_year['Gross Income'] - this_year['Taxes']
             this_year['Expenses'] = abs(np.sum([min(0,fe.gross_income(cur_year)) for fe in self.fevents]))
             this_year['Explicit NW Impact'] = np.sum([fe.explicit_nw_impact(cur_year) for fe in self.fevents])

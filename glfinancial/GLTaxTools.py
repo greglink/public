@@ -1,12 +1,22 @@
 import collections
 
-tax_rates = [
+single_filer_tax_rates = [
     (9700, 0.10),
     (39475, 0.12),
     (84200, 0.22),
     (160725, 0.24),
     (204100, 0.32),
     (510300, 0.35),
+    (1000 ** 5, 0.37)
+]
+
+married_filer_tax_rates = [
+    (19400, 0.10),
+    (78950, 0.12),
+    (168400, 0.22),
+    (321450, 0.24),
+    (408200, 0.32),
+    (612350, 0.35),
     (1000 ** 5, 0.37)
 ]
 
@@ -36,56 +46,64 @@ example_tax_rates = [  # Example 4% on some income, just because, representing s
 ]
 
 tax_at_location = {
+    None: [],
     'CA': ca_tax_rates,
     'MA': ma_tax_rates,
     'EXAMPLE': example_tax_rates
 }
 
-def incometax(pretax_income_arg, state_tax=None, location=None):
-    if state_tax is None:
-        if location is None:
-            state_tax = []
-        else:
-            try:
-                state_tax = tax_at_location[location.upper()]
-            except KeyError:
-                raise ValueError(f'Attempted to submit location {location.upper()} to incometax, which only supports locations of {tax_at_location.keys()}')
-    else:
-        if location is not None:
-            raise AssertionError('You cannot submit both a state tax table {state_tax} and location {location} at once')
-        else:
-            state_tax = state_tax
+federal_tax_rates = {'single': single_filer_tax_rates, 'married':married_filer_tax_rates}
+federal_standard_deductions = {'single':12000, 'married':24000}
 
-    if isinstance(pretax_income_arg, collections.Iterable):
-        return [incometax(i, state_tax=state_tax, location=location) for i in pretax_income_arg]
-    tax_owed = 0
-    previous_end = 0
-    pretax_income = pretax_income_arg - 12200  # Standard Exemption
-    for end, rate in tax_rates:
-        money_in_bracket = max(min(pretax_income - previous_end, end - previous_end), 0)
-        tax_owed = tax_owed + money_in_bracket * rate
-        previous_end = end
-    for end, rate in state_tax:
-        money_in_bracket = max(min(pretax_income - previous_end, end - previous_end), 0)
-        tax_owed = tax_owed + money_in_bracket * rate
-        previous_end = end
-    return round(tax_owed, 0)
+class TaxTable():
+    def __init__(self, status='single', state=None):
+        if not status in federal_tax_rates.keys():
+            raise ValueError(f'status must be one of {self.federal.keys()}')
+        self.federal = federal_tax_rates[status]
+        self.state = tax_at_location[state.upper()] if state is not None else []
+        self.standard_deduction = federal_standard_deductions[status]
+
+    def change_status(self, status):
+        if not status in federal_tax_rates.keys():
+            raise ValueError(f'status must be one of {self.federal.keys()}')
+        self.federal = federal_tax_rates[status]
+        self.standard_deduction = federal_standard_deductions[status]
+
+    def change_state(self, state):
+        self.state = tax_at_location[state.upper()] if state is not None else []
+
+    def set_from_fm(self, financialmodel, year):
+        current_location = financialmodel.residences.get(year, None)
+        current_status = financialmodel.status.get(year, None)
+        self.change_state(current_location)
+        self.change_status(current_status)
+
+    def incometax(self, pretax_income_arg):
+        if isinstance(pretax_income_arg, collections.Iterable):
+            return [self.incometax(i) for i in pretax_income_arg]
+        tax_owed = 0
+        previous_end = 0
+        pretax_income = pretax_income_arg - self.standard_deduction
+        for end, rate in self.federal:
+            money_in_bracket = max(min(pretax_income - previous_end, end - previous_end), 0)
+            tax_owed = tax_owed + money_in_bracket * rate
+            previous_end = end
+        for end, rate in self.state:
+            money_in_bracket = max(min(pretax_income - previous_end, end - previous_end), 0)
+            tax_owed = tax_owed + money_in_bracket * rate
+            previous_end = end
+        return round(tax_owed, 0)
+
+    def posttax(self, pretax_income_arg):
+        if isinstance(pretax_income_arg, collections.Iterable):
+            return [self.posttax(i) for i in pretax_income_arg]
+        return round(pretax_income_arg - self.incometax(pretax_income_arg), 0)
 
 
-def posttax(pretax_income_arg, state_tax=None):
-    if state_tax is None:
-        state_tax = []
-    if isinstance(pretax_income_arg, collections.Iterable):
-        return [posttax(i, state_tax=state_tax) for i in pretax_income_arg]
-    return round(pretax_income_arg - incometax(pretax_income_arg, state_tax=state_tax), 0)
-
-
-def pretax(posttax_income, state_tax=None):
-    if state_tax is None:
-        state_tax = []
-    if isinstance(posttax_income, collections.Iterable):
-        return [pretax(i, state_tax=state_tax) for i in posttax_income]
-    pretax_error = lambda pretax_income: posttax(pretax_income, state_tax=state_tax) - posttax_income
-    # Use a Brent gradient approach method of solving roots to determine the proper value
-    pretax_income_result, rootresults = scipy.optimize.brentq(pretax_error, 0, posttax_income * 100, full_output=True)
-    return round(pretax_income_result, 1)
+    def pretax(self, posttax_income):
+        if isinstance(posttax_income, collections.Iterable):
+            return [self.pretax(i) for i in posttax_income]
+        pretax_error = lambda pretax_income: self.posttax(pretax_income) - posttax_income
+        # Use a Brent gradient approach method of solving roots to determine the proper value
+        pretax_income_result, rootresults = scipy.optimize.brentq(pretax_error, 0, posttax_income * 100, full_output=True)
+        return round(pretax_income_result, 1)
