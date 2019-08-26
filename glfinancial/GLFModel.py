@@ -103,7 +103,7 @@ def get_l_fm():
 	return fm
 
 if __name__ == "__main__":
-	nruns = 35
+	nruns = 101
 	models = [get_vh_fm(), get_h_fm(), get_m_fm(), get_l_fm()]
 	results = []
 	for fm in models:

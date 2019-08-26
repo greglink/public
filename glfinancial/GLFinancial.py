@@ -99,17 +99,18 @@ class FinancialEvent(object):
 
 
 class FinancialModel:
-    def __init__(self, name='Unnamed', real_year=0, nw_apr=1.06, nw_apr_stdev=0.08, location=None, status='single'):
+    def __init__(self, name='Unnamed', real_year=0, nw_apr=1.075494565, nw_apr_stdev=0.189442643, location=None, status='single', initial_nw=0):
         self.name = name
         self.real_year = real_year
         self.nw_apr = nw_apr
         self.nw_apr_stdev = nw_apr_stdev
         self.fevents = []
         self.residences = {} # Dict keyed by simyearhash with simkey None
-        self.status = {}
         if location is not None:
             self.change_residence(location, year_start=0)
+        self.status = {}
         self.change_status(status, year_start=0)
+        self.initial_nw = initial_nw
 
     def change_residence(self, location, year_start=None, year_end=None):
         if year_start is None:
@@ -264,12 +265,14 @@ class FinancialModel:
             return f'Simkey:{str(simkey)}:Year#{str(year-year_start)}'
     
             # Default nw APR and stdev are taken from S&P actual returns, 1928->2019
-    def simonce(self, nyears=30, initial_nw=0, nw_apr_avg=1.075494565, nw_apr_stdev=0.189442643, simkey=None):
+    def simonce(self, nyears=30, initial_nw=None, nw_apr_avg=1.075494565, nw_apr_stdev=0.189442643, simkey=None):
         sim_summary = {}
+        np.random.seed(simkey * 2**16 + simkey)
         sim_summary['name'] = ('{}+{} @ {}+/-{} for {} yrs'.format(self.name, initial_nw, round(nw_apr_avg,3), round(nw_apr_stdev,3), nyears))
         sim_summary['simkey'] = simkey
         results = {}
-        results[FinancialModel.get_simyearhash(simkey, 0)] = {'Net Worth':initial_nw, 'Explicit NW Impact': np.sum([fe.explicit_nw_impact(0) for fe in self.fevents])}
+        starting_net_worth = self.initial_nw if initial_nw is None else initial_nw
+        results[FinancialModel.get_simyearhash(simkey, 0)] = {'Net Worth':starting_net_worth, 'Explicit NW Impact': np.sum([fe.explicit_nw_impact(0) for fe in self.fevents])}
         taxes = TaxTable()
         for cur_year in np.arange(1, nyears):
             try:
@@ -278,7 +281,12 @@ class FinancialModel:
             except Exception as e:
                 print(f'simkey:{simkey} and cur_year:{cur_year}')
                 raise e
-            nw_apr = max(0,np.random.normal(loc = nw_apr_avg, scale = nw_apr_stdev, size = 1)[0])
+            use_laplace_approx = True
+            if not use_laplace_approx:
+                nw_apr = max(0,np.random.normal(loc = nw_apr_avg, scale = nw_apr_stdev, size = 1)[0])
+            else:
+                # Use a Laplace approximation: https://sixfigureinvesting.com/2016/03/modeling-stock-market-returns-with-laplace-distribution-instead-of-normal/
+                nw_apr = max(0, np.random.laplace(loc = nw_apr_avg, scale= nw_apr_stdev/1.4142 * 1.19))
             net_worth_interest = last_year.get('Net Worth', 0) * (nw_apr - 1.0)
             this_year['Net Worth'] = last_year['Net Worth'] + net_worth_interest + last_year.get('Net Gain',0) + last_year['Explicit NW Impact']
             this_year['Gross Income'] = np.sum([max(0, fe.gross_income(cur_year)) for fe in self.fevents])
@@ -331,7 +339,7 @@ class FinancialModel:
     
     def plot(self, master_tuple, block=False):
         master_results, master_summary = master_tuple
-        results_lists=[['Net Worth'],['Gross Income', 'Expenses', 'Net Gain', 'Explicit NW Impact']]
+        results_lists=[['Net Worth'],['Gross Income', 'Taxes', 'Expenses', 'Net Gain', 'Explicit NW Impact']]
         xvalues = [x for x in np.arange(1,master_summary['nyears'])] 
         real_years = [x+self.real_year for x in xvalues]
         fig, axs = plt.subplots(len(results_lists),1,figsize=(16,8), constrained_layout=True)
