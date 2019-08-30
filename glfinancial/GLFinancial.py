@@ -293,10 +293,10 @@ class FinancialModel:
             this_year['Adjusted Gross Income'] = np.sum([max(0,fe.adjusted_gross_income(cur_year)) for fe in self.fevents])
             taxes.set_from_fm(self, cur_year)
             this_year['Taxes'] = taxes.incometax(this_year['Adjusted Gross Income'])
-            posttax_income = this_year['Gross Income'] - this_year['Taxes']
+            this_year['Posttax Income'] = this_year['Gross Income'] - this_year['Taxes']
             this_year['Expenses'] = abs(np.sum([min(0,fe.gross_income(cur_year)) for fe in self.fevents]))
             this_year['Explicit NW Impact'] = np.sum([fe.explicit_nw_impact(cur_year) for fe in self.fevents])
-            this_year['Net Gain'] = posttax_income - this_year['Expenses']
+            this_year['Net Gain'] = this_year['Posttax Income'] - this_year['Expenses']
         return results, sim_summary
     
     def simmany(self, nruns=100, nyears=30, **kwargs):
@@ -319,7 +319,7 @@ class FinancialModel:
             tenpercentop = lambda values: np.nanpercentile([v for v in values if v is not None], 10)
             ninetypercentop = lambda values: np.nanpercentile([v for v in values if v is not None], 90)
             Summaries = {'Median': medianop, 'Mean': meanop, 'STDEV': stdevop, '10%':tenpercentop, '90%':ninetypercentop}
-            resultkeys = ['Net Worth', 'Gross Income', 'Adjusted Gross Income', 'Taxes', 'Expenses', 'Net Gain', 'Explicit NW Impact']
+            resultkeys = ['Net Worth', 'Gross Income', 'Adjusted Gross Income', 'Taxes', 'Posttax Income', 'Expenses', 'Net Gain', 'Explicit NW Impact']
             master_summary = {'name':self.name, 'nruns':nruns, 'real_year': self.real_year, 'nyears':nyears, 'simkeys':simkeys, 'Summaries':Summaries, 'resultkeys':resultkeys}
             for summary in Summaries:
                     for year in np.arange(0, nyears):
@@ -339,7 +339,7 @@ class FinancialModel:
     
     def plot(self, master_tuple, block=False):
         master_results, master_summary = master_tuple
-        results_lists=[['Net Worth'],['Gross Income', 'Taxes', 'Expenses', 'Net Gain', 'Explicit NW Impact']]
+        results_lists=[['Net Worth'],['Gross Income', 'Taxes', 'Expenses', 'Posttax Income', 'Net Gain', 'Explicit NW Impact']]
         xvalues = [x for x in np.arange(1,master_summary['nyears'])] 
         real_years = [x+self.real_year for x in xvalues]
         fig, axs = plt.subplots(len(results_lists),1,figsize=(16,8), constrained_layout=True)
@@ -370,7 +370,7 @@ class FinancialModel:
     def plotmany(master_tuple_list, nyears=float('inf'), block=False, subplot_columns=2):
         # Does not well handle Financial Models that don't all start on the same real year
         master_results_list, master_summary_list = zip(*master_tuple_list)
-        results_lists=[['Net Worth'],['Gross Income'], ['Expenses'], ['Net Gain', 'Explicit NW Impact']]
+        results_lists=[['Net Worth'],['Gross Income', 'Taxes', 'Posttax Income'], ['Expenses'], ['Net Gain', 'Explicit NW Impact']]
         min_real_year = np.min([ms['real_year'] for ms in master_summary_list])
         max_real_year = min(nyears, np.max([ms['real_year']+ms['nyears'] for ms in master_summary_list]))
         real_years = np.arange(min_real_year, max_real_year)
