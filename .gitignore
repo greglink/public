@@ -1,52 +1,94 @@
-# Prerequisites
-*.d
+.ipynb_checkpoints/
+*.wav
+*.gif
+__pycache__
+tmp.gif
+tmp.jpg
+tmp.png
+*.pyc
+.idea
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+#################
+## Altium
+#################
+ 
+# backup and output directories
+__Previews/
+History/
+Project Logs for */
+logs/
+Project Outputs for */
+output/
 
-# Linker output
-*.ilk
-*.map
-*.exp
+# altium repo
+*.svn
+ 
+# web reports
+*.PcbDoc.htm
+*.SchDoc.htm
+*.PcbLib.htm
+*.SchLib.htm
+ 
+# temporary files
+*.~SchDoc
+*.~PcbDoc
+*.~SchLib
+*.~PcbLib
+*.PrjPcbStructure
+ 
+# export log
+*.Rep
+ 
+# library editor reports
+*.REP
+*.CMP
+*.ERR
+ 
+# viewport settings
+*.PcbDocPreview
+*.SchDocPreview
+ 
+############
+## IAR
+############
+Debug/
+settings/
+*.dep
+*.ewd
+*.ewt
+ 
+############
+## Windows
+############
+ 
+# Windows image file caches
+Thumbs.db
 
-# Precompiled Headers
-*.gch
-*.pch
+############
+## Binary / Debug / Object Outputs
+############
+obj/
+bin/
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+automated_recorder/recordings
+venv
+local_scratchpad
+tmp_log
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+ics-52000 prototype/hardware/Fabrication Files/DAA_ICS-52000 PCB Fabrication.zip
+ics-52000 prototype/hardware/Fabrication Files/DAA_ICS-52000 PCB Fabrication.pdf
+ics-52000 prototype/hardware/Fabrication Files/DAA_ICS-52000 Assembly.zip
+ics-52000 prototype/hardware/Fabrication Files/DAA_ICS-52000 Assembly.pdf
+ics-52000 prototype/firmware/sam4s_xpro_ics-52000/Boot_Debug/
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+#############################
+## Encounter Models in Sim ##
+#############################
+air_risk_sim/encounter_models/automated_recorder/faa_reference
+air_risk_sim/encounter_models/automated_recorder/raw
+air_risk_sim/encounter_models/automated_recorder/*
+air_risk_sim/encounter_models/ziplogs
+air_risk_sim/encounter_models/failure_bouds
+air_risk_sim/encounter_models/LLmodel
+air_risk_sim/encounter_models/
