@@ -37,6 +37,10 @@ ma_tax_rates = [
     (1000 ** 5, 0.0505 ) # Flat income tax in MA
 ]
 
+nc_tax_rates = [
+    (1000 ** 5, 0.0525 ) # Flat income tax in NC
+]
+
 
 example_tax_rates = [  # Example 4% on some income, just because, representing some arbitrary state that's not CA
     (10000, 0.01),
@@ -49,6 +53,7 @@ tax_at_location = {
     None: [],
     'CA': ca_tax_rates,
     'MA': ma_tax_rates,
+    'NC': nc_tax_rates,
     'EXAMPLE': example_tax_rates
 }
 
