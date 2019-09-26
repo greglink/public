@@ -4,6 +4,8 @@ import sys
 import time
 import warnings
 import math
+import multiprocessing
+import functools
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker
@@ -256,7 +258,7 @@ class FinancialModel:
         plt.show(block=block)
 
     @classmethod
-    def get_simyearhash(cls, simkey, year, year_start=0):
+    def get_simyearhash_old(cls, simkey, year, year_start=0):
         if simkey is None:
             return f'Year#{str(year-year_start)}'
         else:
@@ -264,8 +266,16 @@ class FinancialModel:
                 raise ValueError('Cannot have # or : in simkeys. Try numbers instead')
             return f'Simkey:{str(simkey)}:Year#{str(year-year_start)}'
     
+
+    @classmethod
+    def get_simyearhash(cls, simkey=0, year=0, year_start=0):
+        # Presume/require that year-year_start is never greater than 99.
+        # Then we just need to shift the simkey left by 100 to make a 'safe'
+        # collision free hash value.
+        return int(hash(simkey)*100+year-year_start)
+
             # Default nw APR and stdev are taken from S&P actual returns, 1928->2019
-    def simonce(self, nyears=30, initial_nw=None, nw_apr_avg=1.075494565, nw_apr_stdev=0.189442643, simkey=None):
+    def simonce(self, simkey, nyears=30, initial_nw=None, nw_apr_avg=1.075494565, nw_apr_stdev=0.189442643):
         sim_summary = {}
         np.random.seed(simkey * 2**16 + simkey)
         sim_summary['name'] = ('{}+{} @ {}+/-{} for {} yrs'.format(self.name, initial_nw, round(nw_apr_avg,3), round(nw_apr_stdev,3), nyears))
@@ -303,8 +313,19 @@ class FinancialModel:
         print(f'Starting to simulate {self.name} over {nruns} runs for {nyears} years each...]', flush=True)
         start_time = time.monotonic()
         master_results = {}
-        simkeys = [simnum for simnum in np.arange(1,nruns)]
-        simresults = [self.simonce(simkey=simkey, nyears=nyears, **kwargs) for simkey in simkeys]
+
+        # simkeys = [simnum for simnum in np.arange(1,nruns)]
+        simkeys = np.arange(1,nruns)
+        parallel = True
+        if parallel:
+            nproc = multiprocessing.cpu_count()
+            thread_pool = multiprocessing.Pool(nproc)
+
+            simonce_simkeyonly = functools.partial(self.simonce, nyears=nyears, **kwargs)
+            simresults = thread_pool.map(simonce_simkeyonly, simkeys)
+        else:
+            simresults = [self.simonce(simkey=simkey, nyears=nyears, **kwargs) for simkey in simkeys]
+        
         print(f'\tFinished simulating {self.name} in ' + '{} seconds...'.format(round(time.monotonic()-start_time,1)))
         start_time = time.monotonic()
         for results, sim_summary in simresults:
