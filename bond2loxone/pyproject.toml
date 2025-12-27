@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bond2loxone"
+version = "0.3.0"
+description = "Generate a Loxone .LxAddon from a Bond Bridge (devices, groups, actions, and optional state)."
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["requests>=2.31.0"]
+authors = [{name="Greg Link"}]
+license = {text="MIT"}
+
+[project.scripts]
+bond2loxone = "bond2loxone.cli:main"

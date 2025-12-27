@@ -92,3 +92,10 @@ air_risk_sim/encounter_models/ziplogs
 air_risk_sim/encounter_models/failure_bouds
 air_risk_sim/encounter_models/LLmodel
 air_risk_sim/encounter_models/
+
+# Python / Mac
+.DS_Store
+build/
+dist/
+*.egg-info/
+

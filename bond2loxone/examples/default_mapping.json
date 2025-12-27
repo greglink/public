@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "description": "Default configuration to ignore specific actions and state keys",
+  
+  "mappings": [
+    {
+      "match": { "action": "Pair" },
+      "ignore": true
+    },
+    {
+      "match": { "action": "PairAlt" },
+      "ignore": true
+    },
+    {
+      "match": { "action": "ToggleOpen" },
+      "ignore": true
+    },
+    {
+      "match": { "action": "Hold" },
+      "ignore": true
+    },
+    {
+      "match": { "action": "IncreasePosition" },
+      "ignore": true
+    },
+    {
+      "match": { "action": "DecreasePosition" },
+      "ignore": true
+    }
+  ],
+  
+  "state_mappings": [
+    {
+      "match": { "state_key": "_lock_priority" },
+      "ignore": true
+    },
+    {
+      "match": { "state_key": "_lock_expiration" },
+      "ignore": true
+    },
+    {
+      "match": { "state_key": "counter1" },
+      "ignore": true
+    },
+    {
+      "match": { "state_key": "counter2" },
+      "ignore": true
+    }
+  ]
+}
