@@ -8,7 +8,7 @@ from typing import List
 from . import bond
 from .bond import BondObject
 from .config import Config
-from .generator import generate_lxaddon
+from .generator import generate_lxaddons
 from .mapper import Mapper
 
 DEFAULT_TIMEOUT = 3.0
@@ -108,11 +108,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="Generate a Loxone .LxAddon by scanning a Bond Bridge local API (v2).")
     ap.add_argument("--host", required=True, help="Bond Bridge IP/host, e.g. 192.168.1.13")
     ap.add_argument("--token", required=True, help="Bond local token")
-    ap.add_argument("--out", default="bond2loxone.LxAddon", help="Output .LxAddon path")
+    ap.add_argument("--out", default=".", help="Output directory for .LxAddon files")
     ap.add_argument("--config", help="Path to JSON configuration file")
     ap.add_argument("--include-state", action=argparse.BooleanOptionalAction, default=True, help="Query and include state information")
     ap.add_argument("--state-poll-interval", type=int, default=DEFAULT_POLL_INTERVAL, help=f"Polling interval for state updates (default: {DEFAULT_POLL_INTERVAL})")
-    ap.add_argument("--emit-intermediate", default=None, help="Directory to write intermediate files (desc.json/template.xml/inventory.json) before zipping")
+    ap.add_argument("--emit-intermediate", default=None, help="Directory to write intermediate files (desc.json/template.xml) before zipping")
     ap.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT, help="HTTP timeout seconds (default: 3.0)")
     ap.add_argument("--verbose", "-v", action="count", default=0, help="Increase verbosity")
     ap.add_argument("--quiet", "-q", action="store_true", help="Suppress non-error output")
@@ -219,8 +219,13 @@ def main() -> int:
         logging.info("Dry run completed. No files written.")
         return 0
 
+    # Determine output directory
+    out_dir = args.out
+    if out_dir.endswith(".LxAddon"):
+        out_dir = os.path.dirname(out_dir) or "."
+
     # Generation
-    info = generate_lxaddon(
+    results = generate_lxaddons(
         host=args.host,
         token=args.token,
         bond_id=bond_id,
@@ -228,17 +233,22 @@ def main() -> int:
         objs=objs,
         endpoints=all_endpoints,
         inputs=all_inputs,
-        out_lxaddon_path=args.out,
+        out_dir=out_dir,
         intermediate_dir=args.emit_intermediate,
         poll_interval=args.state_poll_interval
     )
 
     logging.info("")
-    logging.info(f"Generated: {info['out']}")
-    if info['intermediate_dir']:
-        logging.info(f"Intermediate files: {info['intermediate_dir']}")
+    if "outputs" in results:
+        logging.info(f"Generated Outputs Addon: {results['outputs']}")
+    if "inputs" in results:
+        logging.info(f"Generated Inputs Addon:  {results['inputs']}")
+        
+    if args.emit_intermediate:
+        logging.info(f"Intermediate files written to: {args.emit_intermediate}")
         
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
