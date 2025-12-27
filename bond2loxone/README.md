@@ -1,6 +1,6 @@
 # bond2loxone
 
-A professional-grade Python command-line tool that automatically discovers devices and groups on a Bond Bridge device via its local API, then generates a Loxone `.LxAddon` file containing Virtual Outputs and Virtual Inputs to enable complete integration with Loxone home automation systems.
+A Python command-line tool that automatically discovers devices and groups on a Bond Bridge device via its local API, then generates a Loxone `.LxAddon` file containing Virtual Outputs and Virtual Inputs to enable complete integration with Loxone home automation systems.
 
 ## Features
 
@@ -20,7 +20,7 @@ pip install .
 ## Usage
 
 ```bash
-bond2loxone --host <bond_address> --token <api_token>
+bond2loxone --host <bond_address> --token <api_token> --config bond2loxone/examples/default_mapping.json
 ```
 
 ### Arguments

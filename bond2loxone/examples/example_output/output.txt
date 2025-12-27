@@ -1,0 +1,134 @@
+bond2loxone --host <HOST_IP_OMITTED>> --token <TOKEN_OMITTED> --config bond2loxone/examples/default_mapping.json 
+Discovering Bond Bridge at <HOST_IP_OMITTED>...
+Bond ID: ZPIG40653
+Firmware: v4.26.3
+Loaded configuration from bond2loxone/examples/default_mapping.json
+
+Discovered 17 Devices, 3 Groups:
+  [GROUP] Kitchen/Dining/Living Shades (MS)
+    ID: 3199e488726a1ace
+    Location: -
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [GROUP] Master Bedroom Shades (MS)
+    ID: 8571747d534866e1
+    Location: -
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [GROUP] Office Shades (MS)
+    ID: ee9fcdcac99a5aea
+    Location: -
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Atrium Patio (MS)
+    ID: 899589d02c47d931
+    Location: Atrium
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Bar South (MS)
+    ID: 3b769e751010bfcc
+    Location: Bar
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Bar/Sunroom (MS)
+    ID: 8f78b9673b765dbd
+    Location: Bar
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Craft Wide (MS)
+    ID: 7b4cab0009e6ef37
+    Location: Craft
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Guest (MS)
+    ID: b95349d21ee9ad6f
+    Location: Guest Bedroom
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Dining Center (MS)
+    ID: 249c9d8dca850d5b
+    Location: Kitchen/Dining/Living
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Dining Left (MS)
+    ID: bedf4482dcecc747
+    Location: Kitchen/Dining/Living
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Dining Right (MS)
+    ID: c5961baa139ab488
+    Location: Kitchen/Dining/Living
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Kitchen (MS)
+    ID: 986da24904e05458
+    Location: Kitchen/Dining/Living
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Living Center (MS)
+    ID: 9b8f6b21d34143b7
+    Location: Kitchen/Dining/Living
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Living Left (MS)
+    ID: b7bd678535dd96ca
+    Location: Kitchen/Dining/Living
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Living Right (MS)
+    ID: 7cd70e4186babad2
+    Location: Kitchen/Dining/Living
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Atrium/Master Bedroom (MS)
+    ID: fae41183d479ca8e
+    Location: Master Bedroom
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Master Bedroom (MS)
+    ID: 5b7d12aaf56fb66d
+    Location: Master Bedroom
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Master Closet (MS)
+    ID: 5d86e95add9d28ef
+    Location: Master Bedroom
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Office Large (MS)
+    ID: df7df27175a67833
+    Location: Office
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+  [DEVICE] Office Small (MS)
+    ID: 649ab4faac9133a5
+    Location: Office
+    Actions: Close, DecreasePosition, Hold, IncreasePosition, Open, Pair, PairAlt, SetPosition, Stop, ToggleOpen
+    → Mapped to 4 Virtual Outputs
+    → State: open, position, __ (3 Virtual Inputs)
+
+Summary:
+  Total Virtual Outputs: 80
+  Total Virtual Inputs: 60
+  State Polling Interval: 30 seconds
+
+Generated: bond2loxone.LxAddon
