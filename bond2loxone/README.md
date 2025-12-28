@@ -40,3 +40,9 @@ bond2loxone --host <bond_address> --token <api_token> --config bond2loxone/examp
 ## Configuration
 
 You can provide a JSON configuration file to customize device mappings. See `examples/` for details.
+
+## End Result
+
+Once parsed, one or more custom .LxAddon files will be generated, specifically for your Bond Bridge, with all devices supported by default
+
+<img src="examples/example_output/Example%20of%20Imported%20Template.jpg" alt="Example of Imported Custom .LxAddon File" width="1024">
